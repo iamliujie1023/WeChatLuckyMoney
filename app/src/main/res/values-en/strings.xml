@@ -38,6 +38,7 @@
     <string name="auto_open_packets">Open red packets automatically</string>
     <string name="open_with_delay">Open red packets with a delay</string>
     <string name="open_self">Open red packets I gave out</string>
+    <string name="open_after_back">拆开后自动返回</string>
     <string name="skip_phrases">Skip red packets by words in the message</string>
     <string name="about">About</string>
     <string name="check_new_version">Check for updates</string>
@@ -55,4 +56,5 @@
     <string name="delay_then">and then&#160;</string>
     <string name="d">延迟0秒拆开红包</string>
     <string name="todo">TODO</string>
+    <string name="interrupt">服务已中断</string>
 </resources>

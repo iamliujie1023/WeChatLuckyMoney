@@ -37,6 +37,11 @@
                 android:title="@string/open_self"
                 android:layout="@layout/preference_checkbox"
                 android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="pref_open_after_back"
+            android:title="@string/open_after_back"
+            android:layout="@layout/preference_checkbox"
+            android:defaultValue="false"/>
         <EditTextPreference
                 android:key="pref_watch_exclude_words"
                 android:title="@string/skip_phrases"
@@ -46,6 +51,13 @@
     <PreferenceCategory
             android:title="@string/about"
             android:layout="@layout/preference_category">
+
+        <Preference
+            android:key="pref_add_white"
+            android:title="白名单"
+            android:summary="将此应用加入白名单防止进程被杀"
+            android:layout="@layout/preference_checkbox"/>
+
         <Preference
                 android:key="pref_etc_check_update"
                 android:title="@string/check_new_version"

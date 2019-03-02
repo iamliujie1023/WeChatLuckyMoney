@@ -7,6 +7,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import xyz.monkeytong.hongbao.R;
 import xyz.monkeytong.hongbao.activities.WebViewActivity;
+import xyz.monkeytong.hongbao.utils.SettingUtils;
 import xyz.monkeytong.hongbao.utils.UpdateTask;
 
 /**
@@ -21,6 +22,16 @@ public class GeneralSettingsFragment extends PreferenceFragment {
     }
 
     private void setPrefListeners() {
+        //add white
+        Preference whitePref = findPreference("pref_add_white");
+        whitePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                SettingUtils.enterWhiteListSetting(getActivity());
+                return false;
+            }
+        });
+
         // Check for updates
         Preference updatePref = findPreference("pref_etc_check_update");
         updatePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
