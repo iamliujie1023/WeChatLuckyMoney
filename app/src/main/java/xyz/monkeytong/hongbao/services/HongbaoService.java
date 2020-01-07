@@ -42,6 +42,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
     private static final String WECHAT_BETTER_LUCK_2_CH = "手慢了，红包派完了";
     private static final String WECHAT_BETTER_LUCK_3_CH = "看看大家的手气";
     private static final String WECHAT_EXPIRES_CH = "已超过24小时";
+    private static final String WECHAT_EXPIRES_2_CH = "过期";
     private static final String WECHAT_VIEW_SELF_CH = "查看红包";
     private static final String WECHAT_VIEW_OTHERS_CH = "领取红包";
     private static final String WECHAT_VIEW_ALL_CH = "微信红包";
@@ -182,7 +183,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
                                 /* 戳开红包，红包已被抢完，遍历节点匹配“红包详情”和“手慢了” */
                                 boolean hasNodes = hasOneOfThoseNodes(getRootInActiveWindow(),
                                         WECHAT_BETTER_LUCK_CH, WECHAT_BETTER_LUCK_2_CH, WECHAT_DETAILS_CH, WECHAT_DETAILS_2_CH, WECHAT_BETTER_LUCK_3_CH,
-                                        WECHAT_BETTER_LUCK_EN, WECHAT_DETAILS_EN, WECHAT_EXPIRES_CH);
+                                        WECHAT_BETTER_LUCK_EN, WECHAT_DETAILS_EN, WECHAT_EXPIRES_CH, WECHAT_EXPIRES_2_CH);
                                 Log.d(TAG, "checkNodeInfo  hasNodes:" + hasNodes + " opened: " + mOpened + " mMutex:" + mMutex + " name: " + currentActivityName);
                                 if (hasNodes
                                         && (currentActivityName.contains(WECHAT_LUCKMONEY_DETAIL_ACTIVITY)
@@ -224,7 +225,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
             }
             boolean hasNodes = this.hasOneOfThoseNodes(rootNodeInfo,
                     WECHAT_BETTER_LUCK_CH, WECHAT_BETTER_LUCK_2_CH, WECHAT_BETTER_LUCK_3_CH,
-                    WECHAT_DETAILS_CH, WECHAT_DETAILS_2_CH, WECHAT_BETTER_LUCK_EN, WECHAT_DETAILS_EN, WECHAT_EXPIRES_CH);
+                    WECHAT_DETAILS_CH, WECHAT_DETAILS_2_CH, WECHAT_BETTER_LUCK_EN, WECHAT_DETAILS_EN, WECHAT_EXPIRES_CH, WECHAT_EXPIRES_2_CH);
             if (hasNodes) {
                 return false;
             }
@@ -413,7 +414,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
         /* 戳开红包，红包已被抢完，遍历节点匹配“红包详情”和“手慢了” */
         boolean hasNodes = hasOneOfThoseNodes(rootNodeInfo,
                 WECHAT_BETTER_LUCK_CH, WECHAT_BETTER_LUCK_2_CH, WECHAT_DETAILS_CH, WECHAT_DETAILS_2_CH, WECHAT_BETTER_LUCK_3_CH,
-                WECHAT_BETTER_LUCK_EN, WECHAT_DETAILS_EN, WECHAT_EXPIRES_CH);
+                WECHAT_BETTER_LUCK_EN, WECHAT_DETAILS_EN, WECHAT_EXPIRES_CH, WECHAT_EXPIRES_2_CH);
         Log.d(TAG, "checkNodeInfo  hasNodes:" + hasNodes + " opened: " + mOpened + " mMutex:" + mMutex + " name: " + currentActivityName);
         if (hasNodes && eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
                 && (currentActivityName.contains(WECHAT_LUCKMONEY_DETAIL_ACTIVITY)
@@ -467,6 +468,9 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
 
     private AccessibilityNodeInfo getTheLastNode(String... texts) {
         AccessibilityNodeInfo rootNodeInfo = getRootInActiveWindow();
+        if (rootNodeInfo == null){
+            return null;
+        }
         int bottom = 0;
         AccessibilityNodeInfo lastNode = null, tempNode;
         List<AccessibilityNodeInfo> nodes;
