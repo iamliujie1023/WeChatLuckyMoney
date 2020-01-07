@@ -60,7 +60,7 @@
             android:theme="@style/OnePixelActivity" />
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="xyz.monkeytong.hongbao.fileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
