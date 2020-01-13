@@ -13,9 +13,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+
 import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.appcompat.app.AlertDialog;
+
+import android.service.notification.NotificationListenerService;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -25,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import xyz.monkeytong.hongbao.R;
+import xyz.monkeytong.hongbao.services.HongbaoNotificationService;
 import xyz.monkeytong.hongbao.services.KeepAliveService;
 import xyz.monkeytong.hongbao.utils.ConnectivityUtil;
 import xyz.monkeytong.hongbao.utils.UpdateTask;
@@ -34,20 +38,45 @@ import java.util.List;
 
 public class MainActivity extends Activity implements AccessibilityManager.AccessibilityStateChangeListener {
 
+    private static final String LISTENER_PATH = "xyz.monkeytong.hongbao/" +
+            "xyz.monkeytong.hongbao.services.HongbaoNotificationService";
+
     //开关切换按钮
     private TextView pluginStatusText;
     private ImageView pluginStatusIcon;
+
+    private TextView notifitionLaunchText;
+    private ImageView notifitionLaunchIcon;
+
+    private View snoozeView;
+    private TextView notifitionSnoozeText;
+    private ImageView notifitionSnoozeIcon;
     //AccessibilityService 管理
     private AccessibilityManager accessibilityManager;
     private OnePixelReceiver mReceiver;
+
+    private final BroadcastReceiver mStateListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateNoticeService();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         pluginStatusText = (TextView) findViewById(R.id.layout_control_accessibility_text);
         pluginStatusIcon = (ImageView) findViewById(R.id.layout_control_accessibility_icon);
+
+        notifitionLaunchText = findViewById(R.id.layout_notification_launch_text);
+        notifitionLaunchIcon = findViewById(R.id.layout_notification_launch_icon);
+
+        snoozeView = findViewById(R.id.layout_snooze_notification);
+        notifitionSnoozeText = findViewById(R.id.layout_snooze_notification_text);
+        notifitionSnoozeIcon = findViewById(R.id.layout_snooze_notification_icon);
 
         handleMaterialStatusBar();
 
@@ -56,7 +85,7 @@ public class MainActivity extends Activity implements AccessibilityManager.Acces
         //监听AccessibilityService 变化
         accessibilityManager = (AccessibilityManager) getSystemService(Context.ACCESSIBILITY_SERVICE);
         accessibilityManager.addAccessibilityStateChangeListener(this);
-        updateServiceStatus();
+        updateHongbaoServiceStatus();
         if (mReceiver == null) {
             mReceiver = new OnePixelReceiver();
             IntentFilter filter = new IntentFilter();
@@ -69,7 +98,7 @@ public class MainActivity extends Activity implements AccessibilityManager.Acces
             @Override
             public void run() {
                 NotificationManagerCompat manager = NotificationManagerCompat.from(MainActivity.this);
-                if (!manager.areNotificationsEnabled()){
+                if (!manager.areNotificationsEnabled()) {
                     new AlertDialog.Builder(MainActivity.this)
                             .setTitle("通知")
                             .setMessage("未获取到通知权限。是否给予权限？")
@@ -85,7 +114,14 @@ public class MainActivity extends Activity implements AccessibilityManager.Acces
             }
         }, 500);
     }
-    private void setNotificationEnabled(){
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        updateNoticeService();
+    }
+
+    private void setNotificationEnabled() {
         try {
             // 根据isOpened结果，判断是否需要提醒用户跳转AppInfo页面，去打开App通知权限
             Intent intent = new Intent();
@@ -94,12 +130,12 @@ public class MainActivity extends Activity implements AccessibilityManager.Acces
                 //这种方案适用于 API 26, 即8.0（含8.0）以上可以用
                 intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
                 intent.putExtra(Settings.EXTRA_CHANNEL_ID, getApplicationInfo().uid);
-            }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
                 //这种方案适用于 API21——25，即 5.0——7.1 之间的版本可以使用
                 intent.putExtra("app_package", getPackageName());
                 intent.putExtra("app_uid", getApplicationInfo().uid);
-            }else {
+            } else {
                 intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                 Uri uri = Uri.fromParts("package", getPackageName(), null);
                 intent.setData(uri);
@@ -149,20 +185,68 @@ public class MainActivity extends Activity implements AccessibilityManager.Acces
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.registerReceiver(mStateListener, new IntentFilter(HongbaoNotificationService.ACTION_STATE_CHANGE));
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
-        updateServiceStatus();
+        updateHongbaoServiceStatus();
+        updateNoticeService();
         // Check for update when WIFI is connected or on first time.
         if (ConnectivityUtil.isWifi(this) || UpdateTask.count == 0)
             new UpdateTask(this, false).update();
     }
 
     @Override
+    public void onBackPressed() {
+        String listeners = Settings.Secure.getString(getContentResolver(),
+                "enabled_notification_listeners");
+        if (listeners != null && listeners.contains(LISTENER_PATH)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("通知监听服务运行中")
+                    .setTitle("提示");
+            builder.setPositiveButton("关闭", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    launchNotificationService(null);
+                }
+            });
+            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    MainActivity.super.onBackPressed();
+                }
+            });
+            builder.create().show();
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onStop() {
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.unregisterReceiver(mStateListener);
+        if (isFinishing()) {
+            String listeners = Settings.Secure.getString(getContentResolver(),
+                    "enabled_notification_listeners");
+            if (listeners != null && listeners.contains(LISTENER_PATH)) {
+                Toast.makeText(this, "通知监听服务运行中，请关闭", Toast.LENGTH_SHORT).show();
+            }
+        }
+        super.onStop();
+
+    }
+
+    @Override
     protected void onDestroy() {
         //移除监听服务
         accessibilityManager.removeAccessibilityStateChangeListener(this);
-        if (mReceiver != null){
+        if (mReceiver != null) {
             unregisterReceiver(mReceiver);
             mReceiver = null;
         }
@@ -181,19 +265,29 @@ public class MainActivity extends Activity implements AccessibilityManager.Acces
 
     }
 
+
+    public void launchNotificationService(View view) {
+        startActivityForResult(
+                new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"), 0);
+    }
+
+
+    public void snoozeNotificationService(View view) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            HongbaoNotificationService.toggleSnooze(this);
+        } else {
+            Toast.makeText(this, "只支持andorid7.0以上", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
     public void openGitHub(View view) {
         Intent webViewIntent = new Intent(this, WebViewActivity.class);
         webViewIntent.putExtra("title", getString(R.string.webview_github_title));
-        webViewIntent.putExtra("url", "https://github.com/geeeeeeeeek/WeChatLuckyMoney");
+        webViewIntent.putExtra("url", "https://github.com/kingwang666/WeChatLuckyMoney");
         startActivity(webViewIntent);
     }
 
-    public void openUber(View view) {
-        Intent webViewIntent = new Intent(this, WebViewActivity.class);
-        webViewIntent.putExtra("title", getString(R.string.webview_alipay_title));
-        String[] couponList = new String[]{"https://render.alipay.com/p/f/fd-j6lzqrgm/guiderofmklvtvw.html?shareId=2088422430692204&campStr=p1j%2BdzkZl018zOczaHT4Z5CLdPVCgrEXq89JsWOx1gdt05SIDMPg3PTxZbdPw9dL&sign=DEqbE64SUB0qjRQGtu%2F0BPXN9YsSXM2zqLHT1X2ufDs%3D&scene=offlinePaymentNewSns"};
-        startActivity(webViewIntent);
-    }
 
     public void openSettings(View view) {
         Intent settingsIntent = new Intent(this, SettingsActivity.class);
@@ -205,13 +299,13 @@ public class MainActivity extends Activity implements AccessibilityManager.Acces
 
     @Override
     public void onAccessibilityStateChanged(boolean enabled) {
-        updateServiceStatus();
+        updateHongbaoServiceStatus();
     }
 
     /**
      * 更新当前 HongbaoService 显示状态
      */
-    private void updateServiceStatus() {
+    private void updateHongbaoServiceStatus() {
         if (isServiceEnabled()) {
             Intent service = new Intent(this, KeepAliveService.class);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -226,6 +320,27 @@ public class MainActivity extends Activity implements AccessibilityManager.Acces
             stopService(service);
             pluginStatusText.setText(R.string.service_on);
             pluginStatusIcon.setBackgroundResource(R.mipmap.ic_start);
+        }
+    }
+
+    private void updateNoticeService() {
+        String listeners = Settings.Secure.getString(getContentResolver(),
+                "enabled_notification_listeners");
+        if (listeners != null && listeners.contains(LISTENER_PATH)) {
+            notifitionLaunchText.setText(R.string.service_off_notification);
+            notifitionLaunchIcon.setBackgroundResource(R.mipmap.ic_stop);
+            snoozeView.setEnabled(true);
+            if (HongbaoNotificationService.isConnected()) {
+                notifitionSnoozeText.setText(R.string.service_snooze_notification);
+                notifitionSnoozeIcon.setBackgroundResource(R.mipmap.ic_stop);
+            } else {
+                notifitionSnoozeText.setText(R.string.service_unsnooze_notification);
+                notifitionSnoozeIcon.setBackgroundResource(R.mipmap.ic_start);
+            }
+        } else {
+            notifitionLaunchText.setText(R.string.service_on_notification);
+            notifitionLaunchIcon.setBackgroundResource(R.mipmap.ic_start);
+            snoozeView.setEnabled(false);
         }
     }
 
@@ -244,6 +359,7 @@ public class MainActivity extends Activity implements AccessibilityManager.Acces
         }
         return false;
     }
+
 
     private static class OnePixelReceiver extends BroadcastReceiver {
         @Override

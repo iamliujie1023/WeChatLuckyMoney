@@ -50,7 +50,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
     private static final String WECHAT_VIEW_OTHERS_CH = "领取红包";
     private static final String WECHAT_VIEW_ALL_CH = "微信红包";
     private static final String WECHAT_VIEW_WORK_CH = "红包";
-    private static final String WECHAT_NOTIFICATION_TIP = "[微信红包]";
+    public static final String WECHAT_NOTIFICATION_TIP = "[微信红包]";
     private static final String WECHAT_LUCKMONEY_RECEIVE_ACTIVITY = ".plugin.luckymoney.ui";//com.tencent.mm/.plugin.luckymoney.ui.En_fba4b94f  com.tencent.mm/com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI
     private static final String WECHAT_LUCKMONEY_RECEIVE_UI_ACTIVITY = "LuckyMoneyReceiveUI";
     private static final String WECHAT_LUCKMONEY_NOT_HOOK_RECEIVE_UI_ACTIVITY = "LuckyMoneyNotHookReceiveUI";
@@ -85,8 +85,8 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
 
         /* 检测通知消息 */
         if (!mMutex) {
-            if (sharedPreferences.getBoolean("pref_watch_notification", false) && watchNotifications(event))
-                return;
+//            if (sharedPreferences.getBoolean("pref_watch_notification", false) && watchNotifications(event))
+//                return;
             if (sharedPreferences.getBoolean("pref_watch_list", false) && watchList(event)) return;
             mListMutex = false;
         }
@@ -299,6 +299,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
         return false;
     }
 
+    @Deprecated
     private boolean watchNotifications(AccessibilityEvent event) {
         // Not a notification
         if (event.getEventType() != AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED)

@@ -57,4 +57,9 @@
     <string name="d">延迟0秒拆开红包</string>
     <string name="todo">TODO</string>
     <string name="interrupt">服务已中断</string>
+
+    <string name="service_on_notification">开始通知监听服务</string>
+    <string name="service_off_notification">关闭通知监听服务</string>
+    <string name="service_snooze_notification">暂停通知监听服务</string>
+    <string name="service_unsnooze_notification">继续通知监听服务</string>
 </resources>
