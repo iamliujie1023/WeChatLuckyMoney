@@ -55,20 +55,20 @@ public class HBApplication extends Application {
 //        if (!running || currentProcess) {
 //            return;
 //        }
-        String listeners = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
-        if (listeners != null && listeners.contains(LISTENER_PATH)) {
-            toggleNotificationListenerService();
-        }
+//        String listeners = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
+//        if (listeners != null && listeners.contains(LISTENER_PATH)) {
+//            toggleNotificationListenerService();
+//        }
     }
 
-    private void toggleNotificationListenerService() {
-        ComponentName notificationService = new ComponentName(this, HongbaoNotificationService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            NotificationListenerService.requestRebind(notificationService);
-        } else {
-            PackageManager pm = getPackageManager();
-            pm.setComponentEnabledSetting(notificationService, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-            pm.setComponentEnabledSetting(notificationService, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
-        }
-    }
+//    private void toggleNotificationListenerService() {
+//        ComponentName notificationService = new ComponentName(this, HongbaoNotificationService.class);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            NotificationListenerService.requestRebind(notificationService);
+//        } else {
+//            PackageManager pm = getPackageManager();
+//            pm.setComponentEnabledSetting(notificationService, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+//            pm.setComponentEnabledSetting(notificationService, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+//        }
+//    }
 }

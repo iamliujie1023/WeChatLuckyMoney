@@ -58,8 +58,7 @@ public class HongbaoNotificationService extends NotificationListenerService {
         } else {
             Log.d(TAG, "trying to unsnooze");
             try {
-                NotificationListenerService.requestRebind(
-                        ComponentName.createRelative(context.getPackageName(), HongbaoNotificationService.class.getCanonicalName()));
+                requestRebind(ComponentName.createRelative(context.getPackageName(), HongbaoNotificationService.class.getCanonicalName()));
             } catch (RuntimeException e) {
                 Log.e(TAG, "failed to rebind service", e);
             }

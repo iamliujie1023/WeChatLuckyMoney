@@ -4,15 +4,18 @@ import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.service.notification.NotificationListenerService;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -239,7 +242,14 @@ public class MainActivity extends Activity implements AccessibilityManager.Acces
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             HongbaoNotificationService.toggleSnooze(this);
         } else {
-            Toast.makeText(this, "只支持andorid7.0以上", Toast.LENGTH_SHORT).show();
+            ComponentName notificationService = new ComponentName(this, HongbaoNotificationService.class);
+            PackageManager pm = getPackageManager();
+            if (HongbaoNotificationService.isConnected()) {
+                Toast.makeText(this, "暂停功能只支持Android7.0及以上", Toast.LENGTH_SHORT).show();
+            } else {
+                pm.setComponentEnabledSetting(notificationService, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+                pm.setComponentEnabledSetting(notificationService, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+            }
         }
     }
 
