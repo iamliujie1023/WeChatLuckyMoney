@@ -22,6 +22,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.Collections;
 
+import xyz.monkeytong.hongbao.utils.SystemUtil;
+
 /**
  * Created on 2020/1/13
  * Author: bigwang

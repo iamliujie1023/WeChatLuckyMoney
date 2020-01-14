@@ -1,8 +1,6 @@
 package xyz.monkeytong.hongbao.utils;
 
 import android.app.ActivityManager;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -12,17 +10,16 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
+import android.os.Process;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.List;
-import java.util.Locale;
 
 import static android.content.pm.PackageManager.GET_SERVICES;
 
@@ -124,6 +121,44 @@ public class SystemUtil {
         return myProcess.processName.equals(serviceInfo.processName);
     }
 
+    public static boolean isServiceRunningInCurrentProgress(Context context, Class<? extends Service> clazz) {
+        ComponentName notificationService = new ComponentName(context, clazz);
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (manager == null) {
+            return false;
+        }
+        List<ActivityManager.RunningServiceInfo> runningServices = manager.getRunningServices(Integer.MAX_VALUE);
+        if (runningServices == null || runningServices.isEmpty()) {
+            return false;
+        }
+        for (ActivityManager.RunningServiceInfo service : runningServices) {
+            if (service.service.equals(notificationService)) {
+                if (service.pid == Process.myPid()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isServiceRunning(Context context, Class<? extends Service> clazz) {
+        ComponentName notificationService = new ComponentName(context, clazz);
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (manager == null) {
+            return false;
+        }
+        List<ActivityManager.RunningServiceInfo> runningServices = manager.getRunningServices(Integer.MAX_VALUE);
+        if (runningServices == null || runningServices.isEmpty()) {
+            return false;
+        }
+        for (ActivityManager.RunningServiceInfo service : runningServices) {
+            if (service.service.equals(notificationService)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Nullable
     public static List<PackageInfo> getAllInstallApp(@Nullable Context context) {
         if (context == null) {
@@ -147,7 +182,7 @@ public class SystemUtil {
     }
 
     @Nullable
-    public static Intent getLaunch(@Nullable Context context, @Nullable String packageName){
+    public static Intent getLaunch(@Nullable Context context, @Nullable String packageName) {
         if (context == null || TextUtils.isEmpty(packageName)) {
             return null;
         }
@@ -205,7 +240,7 @@ public class SystemUtil {
         if (clipboard != null) {
             ClipData clip = clipboard.getPrimaryClip();
             if (clip != null && clip.getItemCount() > 0) {
-                if (label == null || label.contentEquals(clip.getDescription().getLabel())){
+                if (label == null || label.contentEquals(clip.getDescription().getLabel())) {
                     return clip.getItemAt(0).coerceToText(context);
                 }
             }
