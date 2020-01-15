@@ -63,12 +63,12 @@
 
         <LinearLayout
             android:id="@+id/layout_control_community"
-            style="?android:attr/borderlessButtonStyle"
+            android:gravity="center"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_marginEnd="5dp"
             android:layout_weight="0.35"
-            android:background="#ffffff"
+            android:background="?attr/selectableItemBackground"
             android:onClick="openGitHub"
             android:orientation="vertical"
             android:textColor="#858585"
@@ -95,13 +95,13 @@
 
         <LinearLayout
             android:id="@+id/layout_control_accessibility"
-            style="?android:attr/borderlessButtonStyle"
+            android:gravity="center"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_weight="0.3"
-            android:background="#ffffff"
+            android:background="?attr/selectableItemBackground"
             android:onClick="openAccessibility"
             android:orientation="vertical"
             android:textColor="#858585"
@@ -129,12 +129,12 @@
 
         <LinearLayout
             android:id="@+id/layout_control_settings"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
+            android:gravity="center"
             android:layout_marginStart="5dp"
             android:layout_weight="0.35"
-            android:background="#ffffff"
+            android:background="?attr/selectableItemBackground"
             android:onClick="openSettings"
             android:orientation="vertical"
             android:textColor="#858585"
@@ -176,13 +176,13 @@
 
         <LinearLayout
             android:id="@+id/layout_notification_launch"
-            style="?android:attr/borderlessButtonStyle"
+            android:gravity="center"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_weight="1"
-            android:background="#ffffff"
+            android:background="?attr/selectableItemBackground"
             android:onClick="launchNotificationService"
             android:orientation="vertical"
             android:textColor="#858585"
@@ -210,13 +210,13 @@
 
         <LinearLayout
             android:id="@+id/layout_snooze_notification"
-            style="?android:attr/borderlessButtonStyle"
+            android:gravity="center"
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_weight="1"
-            android:background="#ffffff"
+            android:background="?attr/selectableItemBackground"
             android:onClick="snoozeNotificationService"
             android:orientation="vertical"
             android:textColor="#858585"

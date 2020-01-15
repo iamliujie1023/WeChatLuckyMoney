@@ -1,8 +1,6 @@
 package xyz.monkeytong.hongbao.activities;
 
 import android.accessibilityservice.AccessibilityServiceInfo;
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -15,16 +13,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.service.notification.NotificationListenerService;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -38,7 +34,7 @@ import xyz.monkeytong.hongbao.utils.ConnectivityUtil;
 import xyz.monkeytong.hongbao.utils.UpdateTask;
 
 
-public class MainActivity extends Activity implements AccessibilityManager.AccessibilityStateChangeListener {
+public class MainActivity extends AppCompatActivity implements AccessibilityManager.AccessibilityStateChangeListener {
 
     //开关切换按钮
     private TextView pluginStatusText;
@@ -76,8 +72,6 @@ public class MainActivity extends Activity implements AccessibilityManager.Acces
         snoozeView = findViewById(R.id.layout_snooze_notification);
         notifitionSnoozeText = findViewById(R.id.layout_snooze_notification_text);
         notifitionSnoozeIcon = findViewById(R.id.layout_snooze_notification_icon);
-
-        handleMaterialStatusBar();
 
         explicitlyLoadPreferences();
 
@@ -147,23 +141,6 @@ public class MainActivity extends Activity implements AccessibilityManager.Acces
 
     private void explicitlyLoadPreferences() {
         PreferenceManager.setDefaultValues(this, R.xml.general_preferences, false);
-    }
-
-    /**
-     * 适配MIUI沉浸状态栏
-     */
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void handleMaterialStatusBar() {
-        // Not supported in APK level lower than 21
-
-        Window window = this.getWindow();
-
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-
-        window.setStatusBarColor(0xffE46C62);
-
     }
 
     @Override
