@@ -3,7 +3,6 @@ package xyz.monkeytong.hongbao.services;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -19,10 +18,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import java.util.Collections;
-
-import xyz.monkeytong.hongbao.utils.SystemUtil;
 
 /**
  * Created on 2020/1/13

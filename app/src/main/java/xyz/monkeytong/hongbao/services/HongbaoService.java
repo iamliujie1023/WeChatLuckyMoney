@@ -448,8 +448,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
                 WECHAT_BETTER_LUCK_EN, WECHAT_DETAILS_EN, WECHAT_EXPIRES_CH, WECHAT_EXPIRES_2_CH);
         Log.d(TAG, "checkNodeInfo  hasNodes:" + hasNodes + " opened: " + mOpened + " mMutex:" + mMutex + " name: " + currentActivityName);
         if (hasNodes && eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
-                && (currentActivityName.contains(WECHAT_LUCKMONEY_DETAIL_ACTIVITY)
-                || currentActivityName.contains(WECHAT_LUCKMONEY_RECEIVE_ACTIVITY))) {
+                && (currentActivityName.contains(WECHAT_LUCKMONEY_DETAIL_ACTIVITY) || currentActivityName.contains(WECHAT_LUCKMONEY_RECEIVE_ACTIVITY))) {
             mMutex = false;
             mLuckyMoneyPicked = false;
             mUnpackCount = 0;
@@ -534,15 +533,15 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        this.powerUtil = new PowerUtil(this);
-        Boolean watchOnLockFlag = sharedPreferences.getBoolean("pref_watch_on_lock", false);
+        this.powerUtil = PowerUtil.getInstance(this);
+        boolean watchOnLockFlag = sharedPreferences.getBoolean("pref_keep_screen_on", false);
         this.powerUtil.handleWakeLock(watchOnLockFlag);
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals("pref_watch_on_lock")) {
-            Boolean changedValue = sharedPreferences.getBoolean(key, false);
+        if (key.equals("pref_keep_screen_on")) {
+            boolean changedValue = sharedPreferences.getBoolean(key, false);
             this.powerUtil.handleWakeLock(changedValue);
         }
     }
@@ -570,6 +569,7 @@ public class HongbaoService extends AccessibilityService implements SharedPrefer
     @Override
     public void onInterrupt() {
         Toast.makeText(this, R.string.interrupt, Toast.LENGTH_SHORT).show();
+        this.powerUtil.handleWakeLock(false);
     }
 
     @Override
